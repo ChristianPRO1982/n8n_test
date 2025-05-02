@@ -1,1 +1,96 @@
 docker run -it --rm --name n8n -p 5678:5678 -v n8n_data:/home/node/.n8n docker.n8n.io/n8nio/n8n
+
+docker run -it --rm --name n8n \
+  -p 5678:5678 \
+  -v n8n_data:/home/node/.n8n \
+  -e N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true \
+  -e N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true \
+  -e N8N_RUNNERS_ENABLED=true \
+  docker.n8n.io/n8nio/n8n
+
+
+
+
+
+Parfait, tu es très proche d’une config propre ! Voici ce que te dit ce message et ce que tu peux faire pour le rendre optimal :
+
+🔐 1. Permissions trop larges sur le fichier config
+n8n te prévient que le fichier /home/node/.n8n/config a des permissions trop permissives (0644). Tu peux corriger ça en ajoutant cette variable d’environnement :
+
+bash
+Copier
+Modifier
+-e N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+⚠️ 2. Dépréciation du mode sans "task runners"
+n8n recommande maintenant d’activer les task runners pour éviter des comportements inattendus à l’avenir. Ajoute aussi cette variable :
+
+bash
+Copier
+Modifier
+-e N8N_RUNNERS_ENABLED=true
+🧩 Version complète à jour de ta commande Docker :
+bash
+Copier
+Modifier
+docker run -it --rm --name n8n \
+  -p 5678:5678 \
+  -v n8n_data:/home/node/.n8n \
+  -e N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true \
+  -e N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true \
+  -e N8N_RUNNERS_ENABLED=true \
+  docker.n8n.io/n8nio/n8n
+🧱 Tu veux plus de persistance ?
+Je te conseille de passer à un petit docker-compose.yml propre pour éviter les lignes à rallonge à chaque démarrage. Je peux t’en générer un de base si tu veux. Tu veux que je te le prépare ?
+
+
+
+
+
+
+
+Vous avez dit :
+on est bon là ?  docker run -it --rm --name n8n \
+  -p 5678:5678 \
+  -v n8n_data:/home/node/.n8n \
+  -e N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true \
+  -e N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true \
+  -e N8N_RUNNERS_ENABLED=true \
+  docker.n8n.io/n8nio/n8n
+
+Permissions 0644 for n8n settings file /home/node/.n8n/config are too wide. Changing permissions to 0600..
+User settings loaded from: /home/node/.n8n/config
+Initializing n8n process
+n8n ready on 0.0.0.0, port 5678
+n8n Task Broker ready on 127.0.0.1, port 5679
+Version: 1.89.2
+
+Editor is now accessible via:
+http://localhost:5678
+
+Press "o" to open in Browser.
+Registered runner "JS Task Runner" (MLPR24aH9wY6mZSeJrZJC) 
+
+
+ChatGPT a dit :
+Oui, là tu es parfaitement bon ! ✅🎉
+
+Voici ce que ton retour confirme :
+
+✅ N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE : activé → tu peux utiliser les nœuds MCP avancés comme Python, Shell, etc.
+
+✅ N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS : a bien corrigé automatiquement les permissions du fichier de config (0600 maintenant).
+
+✅ N8N_RUNNERS_ENABLED : les task runners sont activés → tu es prêt pour les exécutions parallèles et tu es à jour sur l’architecture recommandée.
+
+✅ Interface accessible via http://localhost:5678.
+
+✅ Task Broker + JS Runner bien enregistrés → tout roule côté exécution.
+
+💡 Prochaine étape possible :
+Tu peux maintenant :
+
+Installer des nœuds communautaires depuis les paramètres n8n.
+
+Créer un premier workflow pour consolider tes newsletters.
+
+Ajouter du traitement Python ou autre via MCP.
