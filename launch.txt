@@ -1,7 +1,7 @@
 docker run -it --rm --name n8n -p 5678:5678 -v n8n_data:/home/node/.n8n docker.n8n.io/n8nio/n8n
 
   docker run -it --rm --name n8n \
-  -p 5678:5678 \
+  --network=host \
   -v n8n_data:/home/node/.n8n \
   -v "$(pwd)/n8n_data:/files" \
   -e N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true \
@@ -10,6 +10,9 @@ docker run -it --rm --name n8n -p 5678:5678 -v n8n_data:/home/node/.n8n docker.n
   docker.n8n.io/n8nio/n8n
 
 
+
+👆 J’ai retiré -p 5678:5678 car --network=host rend ça inutile : le port est déjà ouvert sur ta machine directement.
+  -p 5678:5678 \
 
 
 
