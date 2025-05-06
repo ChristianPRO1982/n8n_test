@@ -1,0 +1,1 @@
+https://api.archives-ouvertes.fr/search/?q=title_t:(intelligence%20artificielle%20OR%20artificial%20intelligence%20OR%20deep%20learning%20OR%20LLM)&wt=json&fq=submittedDate_tdate:[NOW-7DAYS/DAY%20TO%20NOW/HOUR]&rows=1000
