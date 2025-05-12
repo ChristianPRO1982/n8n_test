@@ -1,0 +1,53 @@
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:latest
+    restart: always
+    command:
+      - "--api.dashboard=true" # Active le dashboard
+      - "--providers.docker=true" # Permet à Traefik de détecter les containers Docker
+      - "--providers.docker.exposedbydefault=false" # Evite d'exposer tous les containers par défaut
+      - "--entrypoints.web.address=:80" # Trafic HTTP
+      - "--entrypoints.websecure.address=:443" # Trafic HTTPS
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure" # Redirection HTTP -> HTTPS
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https" # Redirection HTTP -> HTTPS
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true" # Challenge TLS pour Let's Encrypt
+      - "--certificatesresolvers.letsencrypt.acme.email=carthographie@outlook.fr" # Ton email Let's Encrypt
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json" # Stockage des certificats
+    ports:
+      - "80:80" # HTTP
+      - "443:443" # HTTPS
+      - "8080:8080" # DASHBOARD
+    networks:
+      - netcartho
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - letsencrypt:/letsencrypt
+    labels:
+      - "traefik.enable=true"
+      # Route pour le dashboard
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.carthographie.fr`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      # Middleware pour l'authentification basique (optionnel mais recommandé)
+      # - "traefik.http.middlewares.auth.basicauth.users=admin:$apr1$9gzDnaoG$R7Nnpcr5w0wRDTo0.Lcn20" # Générez votre propre hash
+      # - "traefik.http.routers.dashboard.middlewares=auth"
+      # Headers de sécurité
+      - "traefik.http.middlewares.security-headers.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.security-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.security-headers.headers.stsPreload=true"
+      - "traefik.http.middlewares.security-headers.headers.customFrameOptionsValue=SAMEORIGIN"
+      - "traefik.http.middlewares.security-headers.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.security-headers.headers.referrerPolicy=strict-origin-when-cross-origin"
+      - "traefik.http.middlewares.security-headers.headers.permissionsPolicy=camera=(), microphone=(), geolocation=(), payment=()"
+
+      # Appliquer les headers de sécurité au dashboard
+      - "traefik.http.routers.dashboard.middlewares=security-headers"
+
+networks:
+  netcartho:
+    external: true
+
+volumes: # Define the volume here
+  letsencrypt:

@@ -1,0 +1,56 @@
+services:
+  web:
+    image: carthographie/lyrics-slide-show:latest
+    command: >
+      sh -c "scripts/wait_for_db.sh &&
+             python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn lyrics_slide_show.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - ./staticfiles:/app/staticfiles
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    networks:
+      - netcartho
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.django.rule=Host(`carthographie.fr`)"
+      - "traefik.http.routers.django.entrypoints=websecure"
+      - "traefik.http.routers.django.tls.certresolver=letsencrypt"
+      - "traefik.http.services.django.loadbalancer.server.port=8000"
+
+
+  n8n:
+    image: n8nio/n8n
+    environment:
+      - N8N_PATH=/n8n
+      - N8N_EDITOR_BASE_URL=https://www.carthographie.fr/n8n
+      - VUE_APP_URL_BASE_API=https://www.carthographie.fr/n8n
+      - WEBHOOK_URL=https://www.carthographie.fr/n8n
+      - N8N_HOST=n8n
+      - N8N_PORT=5678
+    volumes:
+      - ./n8n_data:/home/node/.n8n
+      - ./n8n_files:/files
+    networks:
+      - netcartho
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      # N8N
+      - "traefik.http.routers.n8n.rule=Host(`n8n.carthographie.fr`)"
+      - "traefik.http.routers.n8n.entrypoints=websecure"
+      - "traefik.http.routers.n8n.tls.certresolver=letsencrypt"
+      - "traefik.http.services.n8n.loadbalancer.server.port=5678"
+    ports:
+      - "5678:5678"
+    "127.0.0.1:5678:5678"
+
+volumes:
+  mysql_data: {}
+
+networks:
+  netcartho:
+    external: true
