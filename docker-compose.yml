@@ -82,25 +82,39 @@ services:
   n8n:
     image: n8nio/n8n
     environment:
-      - N8N_PATH=/n8n
-      - N8N_EDITOR_BASE_URL=https://n8n.carthographie.fr/
-      - VUE_APP_URL_BASE_API=https://n8n.carthographie.fr/
-      - WEBHOOK_URL=https://n8n.carthographie.fr/
-      - N8N_HOST=n8n
+      - N8N_HOST=n8n.carthographie.fr
       - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - NODE_ENV=production
+      - WEBHOOK_URL=https://n8n.carthographie.fr/
+      - WEBHOOK_TUNNEL_URL=host.docker.internal:5678
+      - GENERIC_TIMEZONE=Europe/Berlin
+      - N8N_SECURE_COOKIE=false
+      - N8N_RUNNERS_ENABLED=true
     volumes:
       - ./n8n_data:/home/node/.n8n
       - ./n8n_files:/files
     networks:
       - netcartho
     restart: always
+#    ports:
+#      - "5678:5678"
     labels:
-      - "traefik.enable=true"
-      # N8N
-      - "traefik.http.routers.n8n.rule=Host(`n8n.carthographie.fr`)"
-      - "traefik.http.routers.n8n.entrypoints=websecure"
-      - "traefik.http.routers.n8n.tls.certresolver=letsencrypt"
-      - "traefik.http.services.n8n.loadbalancer.server.port=5678"
+      - traefik.enable=true
+      - traefik.http.routers.n8n.rule=Host(`n8n.carthographie.fr`)
+      - traefik.http.routers.n8n.tls=true
+      - traefik.http.routers.n8n.entrypoints=web,websecure
+      - traefik.http.routers.n8n.tls.certresolver=mytlschallenge
+      - traefik.http.middlewares.n8n.headers.SSLRedirect=true
+      - traefik.http.middlewares.n8n.headers.STSSeconds=315360000
+      - traefik.http.middlewares.n8n.headers.browserXSSFilter=true
+      - traefik.http.middlewares.n8n.headers.contentTypeNosniff=true
+      - traefik.http.middlewares.n8n.headers.forceSTSHeader=true
+      - traefik.http.middlewares.n8n.headers.SSLHost=carthographie.fr
+      - traefik.http.middlewares.n8n.headers.STSIncludeSubdomains=true
+      - traefik.http.middlewares.n8n.headers.STSPreload=true
+      - traefik.http.routers.n8n.middlewares=n8n@docker
+      - traefik.http.services.n8n.loadbalancer.server.port=5678
 
 networks:
   netcartho:
